@@ -9,20 +9,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.1
           tools: composer:v2
           coverage: none
-      - name: Require Vapor CLI
-        run: composer global require laravel/vapor-cli
-      - name: Install Project Dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
-      - name: set team
-        run: vapor team:current
-      - name: Deploy Environment
-        run: vapor deploy
+      - name: Require Forge CLI
+        run: composer global require laravel/forge-cli
+      - name: Deploy Site
+        run: |
+          forge server:switch your-server-name
+          forge deploy your-site-name.com
         env:
-          VAPOR_API_TOKEN: ${{ secrets.VAPOR_API_TOKEN }}
+          FORGE_API_TOKEN: ${{ secrets.FORGE_API_TOKEN }}
